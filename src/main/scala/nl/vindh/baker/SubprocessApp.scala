@@ -19,6 +19,23 @@ object SubprocessApp extends App with WebshopConcepts with Subprocesses {
     Recipe("RetrieveSubprocess")
     .withInteraction(retrieveGoods)
 
+  val eventA = Event("Event A")
+  val eventB = Event("Event B")
+  val eventC = Event("Event C")
+  val eventD = Event("Event D", goods)
+  val intA = Interaction("Interaction A", Seq(), Seq(eventA))
+  val intB = Interaction("Interaction B", Seq(), Seq(eventB))
+  val intC = Interaction("Interaction C", Seq(), Seq(eventC))
+  val intD = Interaction("Interaction D", Seq(), Seq(eventD))
+
+  val complicatedSubprocess: Recipe =
+    Recipe("ComplicatedSubprocess")
+    .withInteractions(
+      intA,
+      intB,
+      intC,
+      intD.withRequiredEvents(eventA, eventB))
+
   val webShopRecipe: Recipe =
     Recipe("WebShop")
       .withInteractions(
@@ -36,12 +53,15 @@ object SubprocessApp extends App with WebshopConcepts with Subprocesses {
 
   val webshopWithFactory = webShopRecipe.expandSubprocess(generalGoodAcquisitionProcess, manufactureSubprocess)
   val webshopWithWarehouse = webShopRecipe.expandSubprocess(generalGoodAcquisitionProcess, retrieveSubprocess)
+  val complicatedWebshop = webShopRecipe.expandSubprocess(generalGoodAcquisitionProcess, complicatedSubprocess)
 
   val compiledWebshop = RecipeCompiler.compileRecipe(webShopRecipe)
   val compiledWebshopWithFactory = RecipeCompiler.compileRecipe(webshopWithFactory)
   val compiledWebshopWithWarehouse = RecipeCompiler.compileRecipe(webshopWithWarehouse)
+  val compiledComplicatedWebshop = RecipeCompiler.compileRecipe(complicatedWebshop)
 
   println(compiledWebshop.getRecipeVisualization)
   println(compiledWebshopWithFactory.getRecipeVisualization)
   println(compiledWebshopWithWarehouse.getRecipeVisualization)
+  println(compiledComplicatedWebshop.getRecipeVisualization)
  }
